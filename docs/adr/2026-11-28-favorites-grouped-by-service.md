@@ -47,9 +47,12 @@ A map rather than a heuristic, because the category of a service is a fact
 about AWS and not something a renderer can derive: `aws_sqs` is Application
 integration and `aws_s3` is Storage, and no spelling rule says so. A checked-in
 file rather than a generated one, because the categories are editorial and a
-build step cannot invent them. A unit test fails when a module docgen documents
-is in neither the map nor an explicit list of unmapped ids, so a new service
-cannot quietly land in Ungrouped.
+build step cannot invent them. A unit test fails when a module with an overview
+page — one of the `readmes` of `docgen.baseline.json` — is in neither the map
+nor an explicit list of unmapped ids, so a new service cannot quietly land in
+Ungrouped. Type pages under a submodule with no overview of its own are outside
+that check, which is how the `interfaces.aws_*` pages reach Ungrouped without
+failing a build.
 
 **The service name on a row comes from the sidebar skeleton, not from the map.**
 A row reads `Queue · SQS`, and that second word is the name the Explorer's own
@@ -145,16 +148,18 @@ may already be resting on.
   fetch fails the rows still carry their titles and their groups; only the
   service word is missing.
 - The category map is a file someone has to maintain. Its coverage is a test
-  that runs every documented module id through the lookup the site uses, so a
-  module the lookup cannot place surfaces as a failing build rather than as rows
-  quietly piling up in Ungrouped. The map the view ships with leaves 21
-  documented module ids unplaced, which the test lists by name.
+  that runs the id of every module with an overview page through the lookup the
+  site uses, so such a module the lookup cannot place surfaces as a failing
+  build rather than as rows quietly piling up in Ungrouped. A submodule with no
+  overview of its own is not in that ledger and so not in the check. The map the
+  view ships with leaves 21 documented module ids unplaced, which the test lists
+  by name.
 - That test can hold back a CDK version bump. The only writer of the module
   ledger is the nightly refresh, so the release that first documents a new
-  service module fails the build until the map names it or the unplaced list
-  does. The cost is deliberate: a new service arrives with its category
-  decided. The nightly refresh is where that edit happens, which the versions
-  record in docs/adr/2026-10-15-versions-and-history.md now says.
+  service module with an overview page fails the build until the map names it
+  or the unplaced list does. The cost is deliberate: a new service arrives with
+  its category decided. The nightly refresh is where that edit happens, which
+  the versions record in docs/adr/2026-10-15-versions-and-history.md now says.
 - A group with no favorites in it exists only if the reader made or renamed it.
   A map group disappears when its last favorite goes, and comes back with the
   next page from that service.

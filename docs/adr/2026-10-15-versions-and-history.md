@@ -209,12 +209,13 @@ installed release. Whether a run is the migration is reported from the file's sh
 fingerprints.
 
 The nightly refresh PR carries one editorial obligation. The Favorites view groups a page by the service category
-its module is mapped to, and a unit test fails when a documented module id is in neither that map nor the list of
-ids the map deliberately leaves unplaced (see docs/adr/2026-11-28-favorites-grouped-by-service.md). So the release
-that first documents a new `aws-cdk-lib` service module fails `build` until `favorite-categories.json` names it or
-the unplaced list does. That is the intended order — a new service reaches the reference with its category decided
-rather than landing silently in Ungrouped — but it means a version bump can wait on an editorial edit, and whoever
-reviews the nightly PR is the one who makes it.
+its module is mapped to, and a unit test fails when a module with an overview page — one of the ledger's `readmes` —
+is in neither that map nor the list of ids the map deliberately leaves unplaced (see
+docs/adr/2026-11-28-favorites-grouped-by-service.md). So the release that first documents such a module for a new
+`aws-cdk-lib` service fails `build` until `favorite-categories.json` names it or the unplaced list does. That is the
+intended order — a new service reaches the reference with its category decided rather than landing silently in
+Ungrouped — but it means a version bump can wait on an editorial edit, and whoever reviews the nightly PR is the one
+who makes it.
 
 **First documentation of a package seeds unknown history.** A key first seen in an assembly the ledger holds no
 rows for is recorded `[null, null, null, fingerprint]`, not as introduced-in-the-installed-release — those types

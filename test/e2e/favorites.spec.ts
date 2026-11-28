@@ -970,6 +970,46 @@ test.describe('grouped favorites view', () => {
       ]);
     });
 
+    test('the Undo offer never covers a row the keyboard moves to', async ({ page }) => {
+      // A short viewport and a list longer than it, which is the normal case
+      // now the cap is gone: the toast sticks to the bottom of the sidebar.
+      await page.setViewportSize({ width: 1280, height: 400 });
+      await openView(page, [
+        ...STARRED,
+        { path: '/v2/docs/aws-cdk-lib.aws_s3.Bucket', title: 'Bucket' },
+        { path: '/v2/docs/aws-cdk-lib.aws_lambda.Function', title: 'Function' },
+        { path: '/v2/docs/aws-cdk-lib.aws_iam.Role', title: 'Role' },
+        { path: '/v2/docs/aws-cdk-lib.aws_ecs.Cluster', title: 'Cluster' },
+        { path: '/v2/docs/aws-cdk-lib.aws_ec2.Vpc', title: 'Vpc' },
+      ]);
+      const row = view(page).locator('.favorites-item').first();
+      await row.hover();
+      await row.getByRole('button', { name: /^Remove/ }).click();
+      const toast = view(page).locator('.favorites-toast');
+      await expect(toast).toBeVisible();
+
+      const links = view(page).locator('.favorites-link');
+      const count = await links.count();
+      for (let index = 0; index < count; index++) {
+        await links.nth(index).focus();
+        const clear = await page.evaluate(() => {
+          const focused = document.activeElement!.getBoundingClientRect();
+          const panel = document
+            .querySelector('.favorites-section .favorites-toast')!
+            .getBoundingClientRect();
+          return (
+            focused.bottom <= panel.top ||
+            focused.top >= panel.bottom ||
+            focused.right <= panel.left ||
+            focused.left >= panel.right
+          );
+        });
+        expect(clear, `row ${index} is under the Undo offer`).toBe(true);
+      }
+      // The offer is still there to be used.
+      await expect(toast.getByRole('button', { name: 'Undo' })).toBeVisible();
+    });
+
     test('the row buttons stay out of sight until the row is hovered or focused', async ({ page }) => {
       await openView(page);
       const row = view(page).locator('.favorites-item').first();

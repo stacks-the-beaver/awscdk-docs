@@ -339,6 +339,16 @@ describe('favorite pages', () => {
       );
     });
 
+    test('a reference-interface page reads interfaces as its submodule, so it has no category', () => {
+      // The id rule looks at the second dot-part only, and `interfaces` is not
+      // a service. Such a page lands in Ungrouped while its row still names
+      // the service the sidebar files it under.
+      expect(categoryFor('/v2/docs/aws-cdk-lib.interfaces.aws_sqs.IQueueRef')).toBeUndefined();
+      expect(categoryFor('/v2/docs/aws-cdk-lib.interfaces.aws_s3.IBucketRef')).toBeUndefined();
+      // The service's own module is mapped, so only the interface pages differ.
+      expect(categoryFor('/v2/docs/aws-cdk-lib.aws_sqs.Queue')).toBe('Application integration');
+    });
+
     test('a submodule the map does not name has no category, even under a mapped package', () => {
       for (const submodule of [
         'aws_awsexternalanthropic',

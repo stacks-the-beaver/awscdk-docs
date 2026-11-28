@@ -18,7 +18,7 @@
 -->
 <script setup lang="ts">
 import { useData, useRoute, withBase } from "vitepress";
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { API_ROOT } from "../../../src/site-routes";
 import { apiSidebarAsset, loadApiSidebar, type ApiSidebarNode } from "./api-sidebar";
 import { explorerPreview, explorerView } from "./explorer-preview";
@@ -37,6 +37,9 @@ import { pageHref } from "./page-href";
 
 /** How long an Undo offer stays, in milliseconds. */
 const TOAST_MS = 8000;
+
+/** The gap the toast keeps from the bottom of the sidebar, as the CSS sets it. */
+const TOAST_GAP = 16;
 
 /** Which menu is open: a row's (by page path) or a group heading's (by name). */
 interface OpenMenu {
@@ -167,6 +170,10 @@ onUnmounted(() => {
   if (typeof document !== "undefined") {
     document.removeEventListener("pointerdown", onOutsidePointerDown);
     window.removeEventListener("blur", forgetEscape);
+    const scroller = document.querySelector<HTMLElement>(".VPSidebar");
+    if (scroller) {
+      scroller.style.scrollPaddingBottom = "";
+    }
   }
 });
 
@@ -566,6 +573,24 @@ function dismissToast(): void {
   clearToastTimer();
 }
 
+/**
+ * The toast sticks to the bottom of the sidebar, so while it shows the
+ * sidebar reserves its height when it scrolls something into view. Without
+ * that, a row under the toast counts as visible, nothing scrolls, and a
+ * keyboard reader can focus — and remove — a row they cannot see.
+ */
+watch(toast, (showing) => {
+  void nextTick(() => {
+    const scroller = document.querySelector<HTMLElement>(".VPSidebar");
+    if (!scroller) {
+      return;
+    }
+    const panel = document.querySelector<HTMLElement>(".favorites-section .favorites-toast");
+    scroller.style.scrollPaddingBottom =
+      showing && panel ? `${panel.offsetHeight + TOAST_GAP}px` : "";
+  });
+});
+
 let toastStarted = 0;
 
 function startToastTimer(): void {
@@ -609,6 +634,32 @@ function onViewFocusOut(event: FocusEvent): void {
     return;
   }
   holdToast("focus", false);
+}
+
+/**
+ * Scrolls a focused row out from under the toast. The toast sticks to the
+ * bottom of the sidebar and paints over the rows behind it, and a covered row
+ * still counts as visible, so nothing moves on its own: a keyboard reader
+ * would focus — and could remove — a row they cannot see.
+ */
+function keepClearOfToast(target: EventTarget | null): void {
+  if (!toast.value || !(target instanceof HTMLElement)) {
+    return;
+  }
+  const scroller = document.querySelector<HTMLElement>(".VPSidebar");
+  const panel = document.querySelector<HTMLElement>(".favorites-section .favorites-toast");
+  if (!scroller || !panel || panel.contains(target)) {
+    return;
+  }
+  const overlap = target.getBoundingClientRect().bottom - panel.getBoundingClientRect().top;
+  if (overlap > 0) {
+    scroller.scrollTop += overlap + TOAST_GAP;
+  }
+}
+
+function onViewFocusIn(event: FocusEvent): void {
+  holdToast("focus", true);
+  keepClearOfToast(event.target);
 }
 
 /** The timer pauses while the pointer is over the toast or focus is in the view. */
@@ -690,7 +741,7 @@ function cssEscape(value: string): string {
     aria-label="Favorites"
     @keydown="onViewKey($event)"
     @keyup.esc="keepEscape($event)"
-    @focusin="holdToast('focus', true)"
+    @focusin="onViewFocusIn($event)"
     @focusout="onViewFocusOut($event)"
   >
     <template v-if="viewShown">
