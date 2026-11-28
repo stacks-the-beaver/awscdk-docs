@@ -652,7 +652,15 @@ test.describe('grouped favorites view', () => {
 
       // A page the map puts in the renamed group joins the reader's name.
       await page.goto(SQS_OVERVIEW_PAGE);
+      // The skeleton has loaded by now, so the star below is named from the
+      // loaded sections rather than from the pass the view makes at mount.
+      await expect(
+        view(page).locator('[data-fav-link$="aws_sqs.Queue"] .favorites-service'),
+      ).toHaveText(/SQS/);
       await page.locator('.favorite-star-button').click();
+      await expect(
+        view(page).locator('[data-fav-link$="aws_sqs-readme"] .favorites-service'),
+      ).toHaveText(/SQS/);
       await page.goto(QUEUE_PAGE);
       await expect(
         page.getByRole('list', { name: 'Messaging' }).locator('.favorites-link'),

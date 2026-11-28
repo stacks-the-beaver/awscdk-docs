@@ -51,8 +51,9 @@ build step cannot invent them. A unit test fails when a module with an overview
 page — one of the `readmes` of `docgen.baseline.json` — is in neither the map
 nor an explicit list of unmapped ids, so a new service cannot quietly land in
 Ungrouped. Type pages under a submodule with no overview of its own are outside
-that check, which is how the `interfaces.aws_*` pages reach Ungrouped without
-failing a build.
+that check, which is how the `interfaces.aws_*` pages and the
+`@aws-cdk/cfn-property-mixins.aws_*` pages reach Ungrouped without failing a
+build.
 
 **The service name on a row comes from the sidebar skeleton, not from the map.**
 A row reads `Queue · SQS`, and that second word is the name the Explorer's own

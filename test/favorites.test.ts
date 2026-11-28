@@ -760,10 +760,12 @@ describe('favorite pages', () => {
     });
   });
 
-  describe('the category map covers the documented modules', () => {
-    // `docgen.baseline.json` is the committed record of what docgen documents,
-    // so a module added to the library shows up here rather than silently
-    // falling into Ungrouped.
+  describe('the category map covers the modules with an overview page', () => {
+    // The `readmes` of `docgen.baseline.json` are the modules with an overview
+    // page, so one added to the library shows up here rather than silently
+    // falling into Ungrouped. A submodule with no overview of its own — the
+    // `interfaces.*` and `cfn-property-mixins.*` type pages — is outside this
+    // record and so outside this check.
     const baseline = JSON.parse(
       readFileSync(resolve(ROOT, 'docgen.baseline.json'), 'utf-8'),
     ) as { readmes: Record<string, unknown> };
@@ -772,10 +774,10 @@ describe('favorite pages', () => {
     ) as { categories: string[]; map: Record<string, string> };
 
     /**
-     * Module ids with no category, which land in Ungrouped. Every one of them
-     * has to be listed here, so a new module cannot slip in unnoticed: a
-     * failure here means deciding its category, not extending this list on
-     * sight.
+     * Module ids with an overview page and no category, which land in
+     * Ungrouped. Every one of them has to be listed here, so a module with an
+     * overview cannot slip in unnoticed: a failure here means deciding its
+     * category, not extending this list on sight.
      */
     const UNMAPPED = [
       '@aws-cdk/metrics-facade-alpha',

@@ -760,7 +760,7 @@ function cssEscape(value: string): string {
       </div>
       <p v-if="entries.length === 0" class="favorites-empty" tabindex="-1">
         <strong>No favorites yet.</strong><br />
-        Select the star (☆) on an API page to add it. Favorites sort into groups,
+        Select Add to favorites (☆) on an API page to add it. Favorites sort into groups,
         such as Storage or Compute, and stay in this browser.
       </p>
       <template v-else>
