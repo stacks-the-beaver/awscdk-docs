@@ -808,8 +808,9 @@ describe('favorite pages', () => {
         categoryFor(`/v2/docs/${id.replace('/', '_')}`),
       );
       expect(placed).toEqual([]);
-      // And only ids docgen still documents, or the list drifts from the
-      // count the decision record states.
+      // And only ids the ledger records. The ledger keeps a row for a module
+      // that is no longer installed, so this catches a typo rather than a
+      // module that went away.
       expect(UNMAPPED.filter((id) => !(id in baseline.readmes))).toEqual([]);
     });
 

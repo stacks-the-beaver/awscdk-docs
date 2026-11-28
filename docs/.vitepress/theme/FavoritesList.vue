@@ -421,7 +421,7 @@ function moveEntry(entry: FavoriteEntry, group: string | null): void {
   closeMenu();
   // The store unfolds the target, so the row the move is about stays in sight.
   favoritesStore().move(entry.path, group);
-  announce(`Moved ${entry.title} to ${group ?? UNGROUPED}.`);
+  announce(`Moved ${rowName(entry)} to ${group ?? UNGROUPED}.`);
   void nextTick(() => focus(`[data-fav-link="${cssEscape(entry.path)}"]`));
 }
 

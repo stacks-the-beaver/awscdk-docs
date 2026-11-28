@@ -898,6 +898,78 @@ test.describe('grouped favorites view', () => {
       await expect(actions).toHaveAttribute('aria-expanded', 'false');
     });
 
+    test('the keyboard moves between the two menu levels and to the ends of each', async ({ page }) => {
+      await openView(page);
+      const row = view(page).locator('.favorites-item').first();
+      const actions = row.getByRole('button', { name: 'Actions for Queue' });
+      await actions.focus();
+      await page.keyboard.press('ArrowDown');
+
+      // Right opens the group list, and Escape there goes back one level
+      // rather than closing the menu.
+      await page.keyboard.press('ArrowRight');
+      await expect(row.getByRole('menuitemradio').first()).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(row.getByRole('menuitem', { name: 'Move to group…' })).toBeFocused();
+      await expect(row.getByRole('menuitemradio')).toHaveCount(0);
+
+      // Left goes back too, and End and Home reach the ends of a level.
+      await page.keyboard.press('ArrowRight');
+      await expect(row.getByRole('menuitemradio').first()).toBeFocused();
+      await page.keyboard.press('End');
+      await expect(row.getByRole('menuitem', { name: 'New group…' })).toBeFocused();
+      await page.keyboard.press('Home');
+      await expect(row.getByRole('menuitemradio').first()).toBeFocused();
+      await page.keyboard.press('ArrowLeft');
+      await expect(row.getByRole('menuitem', { name: 'Move to group…' })).toBeFocused();
+      await page.keyboard.press('End');
+      await expect(row.getByRole('menuitem', { name: 'Remove from Favorites' })).toBeFocused();
+    });
+
+    test('New group… in a row menu makes the group and moves that row into it', async ({ page }) => {
+      await openView(page);
+      const row = view(page).locator('.favorites-item').first();
+      await row.hover();
+      await row.getByRole('button', { name: 'Actions for Queue' }).click();
+      await row.getByRole('menuitem', { name: 'Move to group…' }).click();
+      await row.getByRole('menuitem', { name: 'New group…' }).click();
+
+      const field = view(page).getByRole('textbox', { name: 'New group name' });
+      await expect(field).toBeFocused();
+      await field.fill('Mine');
+      await field.press('Enter');
+      await expect(view(page).locator('.favorites-group-name')).toHaveText([
+        'Application integration',
+        'Framework',
+        'Mine',
+      ]);
+      await expect(
+        page.getByRole('list', { name: 'Mine' }).locator('.favorites-link'),
+      ).toHaveText(['Queue · SQS']);
+      expect(await stored(page, GROUPS_KEY)).toEqual(['Mine']);
+    });
+
+    test('leaving that field by Escape returns focus to the row it came from', async ({ page }) => {
+      await openView(page);
+      const row = view(page).locator('.favorites-item').first();
+      const actions = row.getByRole('button', { name: 'Actions for Queue' });
+      await row.hover();
+      await actions.click();
+      await row.getByRole('menuitem', { name: 'Move to group…' }).click();
+      await row.getByRole('menuitem', { name: 'New group…' }).click();
+
+      const field = view(page).getByRole('textbox', { name: 'New group name' });
+      await expect(field).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(field).toHaveCount(0);
+      await expect(actions).toBeFocused();
+      // Nothing moved, and no group was made.
+      await expect(view(page).locator('.favorites-group-name')).toHaveText([
+        'Application integration',
+        'Framework',
+      ]);
+    });
+
     test('the row buttons stay out of sight until the row is hovered or focused', async ({ page }) => {
       await openView(page);
       const row = view(page).locator('.favorites-item').first();
