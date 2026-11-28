@@ -427,8 +427,11 @@ function focusAfter(path: string | undefined, group: string): void {
 function moveEntry(entry: FavoriteEntry, group: string | null): void {
   closeMenu();
   // The store unfolds the target, so the row the move is about stays in sight.
-  favoritesStore().move(entry.path, group);
-  announce(`Moved ${rowName(entry)} to ${group ?? UNGROUPED}.`);
+  // A row moved to the group it is already in does not move, and nothing is
+  // announced for it: the menu offers the current group as the checked item.
+  if (favoritesStore().move(entry.path, group)) {
+    announce(`Moved ${rowName(entry)} to ${group ?? UNGROUPED}.`);
+  }
   void nextTick(() => focus(`[data-fav-link="${cssEscape(entry.path)}"]`));
 }
 

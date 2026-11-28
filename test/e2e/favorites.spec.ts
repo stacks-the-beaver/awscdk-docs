@@ -603,6 +603,20 @@ test.describe('grouped favorites view', () => {
       ]);
     });
 
+    test('picking the group a row is already in announces nothing', async ({ page }) => {
+      await openView(page);
+      const row = view(page).locator('.favorites-item').first();
+      await row.hover();
+      await row.getByRole('button', { name: 'Actions for Queue' }).click();
+      await row.getByRole('menuitem', { name: 'Move to group…' }).click();
+      await row.getByRole('menuitemradio', { name: 'Application integration' }).click();
+
+      // Nothing moved, so a screen reader is told nothing: the message would
+      // report a move that did not happen.
+      await expect(view(page).locator('.favorites-group-count')).toHaveText(['(2)', '(1)']);
+      await expect(view(page).locator('.favorites-live')).toHaveText('');
+    });
+
     test('New group creates an empty group that survives a reload, and a duplicate name is refused', async ({ page }) => {
       await openView(page);
       await view(page).getByRole('button', { name: 'New group' }).click();

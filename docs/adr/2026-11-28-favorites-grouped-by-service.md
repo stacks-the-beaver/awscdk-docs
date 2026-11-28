@@ -124,7 +124,9 @@ in the view, after every group, so a reader who moves through the rows to
 reach it — which is what a screen reader does — would otherwise watch it
 expire on the way. A replacement offer reads the two holds from the page
 rather than assuming them off, because it arrives in the element the pointer
-may already be resting on.
+may already be resting on. A removal also leaves focus on the row, heading or
+button that takes the place of what went, so in practice the eight seconds
+start when the reader leaves the view rather than when the offer appears.
 
 ## Consequences
 
@@ -139,6 +141,12 @@ may already be resting on.
   added for it later does reach it on the next read.
 - Three keys hold the reader's arrangement, so clearing site data loses the
   grouping along with the favorites. They are in this browser either way.
+- The Undo offer usually outlives its eight seconds. A removal puts focus back
+  into the view, so the offer and the Ctrl+Z it names stay until the reader
+  moves focus out of the view, or until another change withdraws them. A
+  reader who removes a row with the mouse and stays in the list keeps the
+  offer in front of them, which is the cost of not losing it under a reader
+  who is on their way to it.
 - A tab still running the previous theme writes the old shape: it truncates the
   list to twenty and drops every `group`. A reader who stars a page in such a
   tab after a deploy loses the favorites past twenty and their own placements,
