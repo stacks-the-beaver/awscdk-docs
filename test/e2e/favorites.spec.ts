@@ -993,8 +993,8 @@ test.describe('grouped favorites view', () => {
     });
 
     test('the Undo offer never covers a row the keyboard moves to', async ({ page }) => {
-      // A short viewport and a list longer than it, which is the normal case
-      // now the cap is gone: the toast sticks to the bottom of the sidebar.
+      // A short viewport and a list taller than it, so the toast sticks to the
+      // bottom of the sidebar.
       await page.setViewportSize({ width: 1280, height: 400 });
       await openView(page, [
         ...STARRED,

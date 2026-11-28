@@ -563,8 +563,8 @@
     min-height: 40px;
   }
 
-  /* The 280px panel the spec names, bounded by the drawer when the drawer is
-     narrower than that, so the menu never hangs off its edge. */
+  /* At most 280px, and never wider than the drawer, so the menu does not hang
+     off its edge. */
   .favorites-grouped .favorites-menu {
     width: min(280px, 100vw - 48px);
     max-width: 100%;

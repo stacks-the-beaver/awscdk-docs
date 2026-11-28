@@ -833,6 +833,24 @@ describe('favorite pages', () => {
       expect(unknown).toEqual([]);
     });
 
+    test('every map key is one the lookup can build', () => {
+      // The lookup builds `<package>` or `<package>.<submodule>` and nothing
+      // longer, so a key with more parts can never be read. One such key is
+      // in the map as supplied; its pages take the package's own category,
+      // which names the same group, so it changes nothing today.
+      const UNREACHABLE = ['aws-cdk-lib.aws_cloudfront.experimental'];
+      const unreachable = Object.keys(map.map).filter((key) => {
+        const parts = key.split('.');
+        return parts.length > 2 || (parts.length === 2 && !/^[a-z]/.test(parts[1]));
+      });
+      expect(unreachable).toEqual(UNREACHABLE);
+      // And the one that cannot be read agrees with the key that is read in
+      // its place, so deleting it would not move a page.
+      expect(categoryFor('/v2/docs/aws-cdk-lib.aws_cloudfront.experimental.EdgeFunction')).toBe(
+        map.map['aws-cdk-lib.aws_cloudfront.experimental'],
+      );
+    });
+
     test('the category names are A to Z, which is the order the view shows', () => {
       expect(map.categories).toEqual(
         [...map.categories].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())),
