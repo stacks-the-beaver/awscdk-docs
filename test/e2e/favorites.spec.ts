@@ -490,6 +490,28 @@ test.describe('grouped favorites view', () => {
       await expect(view(page).locator('.favorites-link').first()).toBeFocused();
     });
 
+    test('Undo into a group folded meanwhile opens that group again', async ({ page }) => {
+      await openView(page);
+      const row = view(page).locator('.favorites-item').first();
+      await row.hover();
+      await row.getByRole('button', { name: 'Remove Queue (SQS) from Favorites' }).click();
+      const toast = view(page).locator('.favorites-toast');
+      await expect(toast).toBeVisible();
+
+      // Folding changes no favorite, so the offer stands.
+      await view(page)
+        .getByRole('button', { name: /^Application integration/ })
+        .click();
+      await expect(page.getByRole('list', { name: 'Application integration' })).toBeHidden();
+      await expect(toast).toBeVisible();
+
+      await toast.getByRole('button', { name: 'Undo' }).click();
+      // The row is back and in sight, and the keyboard is on it.
+      await expect(page.getByRole('list', { name: 'Application integration' })).toBeVisible();
+      await expect(view(page).locator('.favorites-link').first()).toHaveText('Queue · SQS');
+      await expect(view(page).locator('.favorites-link').first()).toBeFocused();
+    });
+
     test('a change after a removal withdraws the Undo offer, so it cannot take that change back', async ({ page }) => {
       await openView(page);
       const row = view(page).locator('.favorites-item').first();

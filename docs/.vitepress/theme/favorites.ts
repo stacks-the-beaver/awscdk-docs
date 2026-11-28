@@ -440,12 +440,21 @@ export class FavoritesStore {
       return undefined;
     }
     const undo = this.snapshot();
-    this.entries = this.entries.map((entry) =>
-      this.groupOf(entry) === name ? { ...entry, group: null } : entry,
-    );
+    let moved = false;
+    this.entries = this.entries.map((entry) => {
+      if (this.groupOf(entry) !== name) {
+        return entry;
+      }
+      moved = true;
+      return { ...entry, group: null };
+    });
     this.groups = this.groups.filter((n) => !sameName(n, name));
     // Or a group recreated under the same name would come back folded.
     this.unfold(name);
+    // A favorite that lands in a group unfolds it, here as on a move.
+    if (moved) {
+      this.unfold(UNGROUPED);
+    }
     for (const origin of this.mapOriginsOf(name)) {
       delete this.aliases[origin];
     }

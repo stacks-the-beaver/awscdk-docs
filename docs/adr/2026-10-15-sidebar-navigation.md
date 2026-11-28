@@ -399,7 +399,8 @@ JSON array of `{ path, title }`, paths stored base-stripped and without
 discarded, never thrown. The entries also carry an optional `group`, and the
 cap of 20 is gone, with the grouped Favorites view
 ([favorites grouped by service](./2026-11-28-favorites-grouped-by-service.md)). The store
-(add/remove/toggle/subscribe) lives in
+(favorites, groups and Undo snapshots; see
+[favorites grouped by service](./2026-11-28-favorites-grouped-by-service.md)) lives in
 `docs/.vitepress/theme/favorites.ts` with an injectable storage backend
 (dependency-free, unit-testable without a DOM). Two Vue components mount
 through layout slots: `FavoriteStar.vue` (the per-page toggle) and

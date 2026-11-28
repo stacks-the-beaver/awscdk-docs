@@ -693,6 +693,12 @@ function undoLast(): void {
     return;
   }
   favoritesStore().restore(current.undo);
+  // The group may have been folded while the offer stood, and a row put back
+  // inside a folded group would be restored out of sight.
+  const back = favoritesStore().list().find((entry) => entry.path === current.focus);
+  if (back) {
+    favoritesStore().setGroupCollapsed(groupOf(back), false);
+  }
   dismissToast();
   void nextTick(() => {
     if (!focus(`[data-fav-link="${cssEscape(current.focus)}"]`)) {
@@ -724,10 +730,11 @@ function onViewKey(event: KeyboardEvent, entry?: FavoriteEntry): void {
 // Focus helpers
 // ---------------------------------------------------------------------------
 
+/** Focuses what the selector names, and says whether focus actually landed. */
 function focus(selector: string): boolean {
   const target = document.querySelector<HTMLElement>(`.favorites-section ${selector}`);
   target?.focus();
-  return target !== null;
+  return target !== null && document.activeElement === target;
 }
 
 /** `CSS.escape` is not in jsdom or in every target browser, so quote the few characters a path or name can carry. */

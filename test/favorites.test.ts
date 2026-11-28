@@ -693,6 +693,19 @@ describe('favorite pages', () => {
       expect(store.isGroupCollapsed('Files')).toBe(false);
     });
 
+    test('deleting a group opens Ungrouped, so the favorites it moves are in sight', () => {
+      const { store } = withTwo();
+      store.setGroupCollapsed(UNGROUPED, true);
+      store.deleteGroup('Storage');
+      expect(store.isGroupCollapsed(UNGROUPED)).toBe(false);
+
+      // An empty group moves nothing, so a reader's fold of Ungrouped stands.
+      store.createGroup('Mine');
+      store.setGroupCollapsed(UNGROUPED, true);
+      store.deleteGroup('Mine');
+      expect(store.isGroupCollapsed(UNGROUPED)).toBe(true);
+    });
+
     test('the revision counts favorite changes, so an Undo offer can tell one happened', () => {
       const { store } = withTwo();
       const start = store.revision();
